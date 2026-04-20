@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ProsthetiX — Design Documentation</title>
+<style>
+  :root {
+    --bg: #0f0f11;
+    --bg2: #16161a;
+    --bg3: #1e1e24;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8e6e0;
+    --text2: #9e9c96;
+    --text3: #6a6864;
+    --purple: #7c6fcd;
+    --purple2: #a99ef5;
+    --purple-bg: rgba(124,111,205,0.12);
+    --teal: #1d9e75;
+    --teal2: #5dcaa5;
+    --teal-bg: rgba(29,158,117,0.12);
+    --amber: #ef9f27;
+    --amber2: #fac775;
+    --amber-bg: rgba(239,159,39,0.12);
+    --coral: #d85a30;
+    --coral2: #f0997b;
+    --coral-bg: rgba(216,90,48,0.12);
+    --blue: #378add;
+    --blue2: #85b7eb;
+    --blue-bg: rgba(55,138,221,0.12);
+    --green: #639922;
+    --green2: #97c459;
+    --green-bg: rgba(99,153,34,0.12);
+    --red: #e24b4a;
+    --red-bg: rgba(226,75,74,0.12);
+    --gray: #888780;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; line-height: 1.7; }
+
+  /* NAV */
+  nav { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; background: var(--bg2); border-right: 1px solid var(--border); overflow-y: auto; padding: 20px 0; z-index: 100; }
+  nav h1 { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: var(--purple2); padding: 0 20px 16px; text-transform: uppercase; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+  nav a { display: block; padding: 7px 20px; font-size: 12.5px; color: var(--text2); text-decoration: none; border-left: 2px solid transparent; transition: all 0.15s; }
+  nav a:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  nav a.active { color: var(--purple2); border-left-color: var(--purple); background: var(--purple-bg); }
+  nav .section-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; padding: 16px 20px 4px; }
+
+  /* MAIN */
+  main { margin-left: 240px; padding: 48px 56px 80px; max-width: 1100px; }
+  .page-title { font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .page-sub { font-size: 15px; color: var(--text2); margin-bottom: 48px; }
+
+  /* SECTIONS */
+  section { margin-bottom: 64px; }
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .section-header h2 { font-size: 20px; font-weight: 600; }
+  .badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; letter-spacing: 0.04em; }
+  .badge-purple { background: var(--purple-bg); color: var(--purple2); }
+  .badge-teal { background: var(--teal-bg); color: var(--teal2); }
+  .badge-amber { background: var(--amber-bg); color: var(--amber2); }
+  .badge-coral { background: var(--coral-bg); color: var(--coral2); }
+  .badge-blue { background: var(--blue-bg); color: var(--blue2); }
+  .badge-green { background: var(--green-bg); color: var(--green2); }
+
+  /* SCENARIO CARDS */
+  .scenario-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .scenario-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .scenario-card h3 { font-size: 13.5px; font-weight: 600; color: var(--purple2); margin-bottom: 8px; }
+  .scenario-card .actor { font-size: 11px; color: var(--text3); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .scenario-card p { font-size: 13px; color: var(--text2); line-height: 1.65; }
+  .scenario-card .steps { margin-top: 12px; list-style: none; counter-reset: step; }
+  .scenario-card .steps li { counter-increment: step; font-size: 12.5px; color: var(--text2); padding: 5px 0 5px 28px; position: relative; border-bottom: 1px solid var(--border); }
+  .scenario-card .steps li:last-child { border-bottom: none; }
+  .scenario-card .steps li::before { content: counter(step); position: absolute; left: 0; top: 5px; width: 18px; height: 18px; border-radius: 50%; background: var(--purple-bg); color: var(--purple2); font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+  /* NOTES */
+  .note { background: var(--amber-bg); border: 1px solid rgba(239,159,39,0.25); border-radius: var(--radius-sm); padding: 12px 16px; font-size: 12.5px; color: var(--amber2); margin: 16px 0; display: flex; gap: 10px; }
+  .note::before { content: "⚑"; flex-shrink: 0; }
+  .note-future { background: var(--blue-bg); border-color: rgba(55,138,221,0.25); color: var(--blue2); }
+  .note-future::before { content: "◎"; }
+  .note-decision { background: var(--teal-bg); border-color: rgba(29,158,117,0.25); color: var(--teal2); }
+  .note-decision::before { content: "✓"; }
+
+  /* DIAGRAM CONTAINER */
+  .diagram-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; overflow-x: auto; margin: 20px 0; }
+  .diagram-label { font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px; }
+
+  /* SVG DIAGRAM STYLES */
+  .dsvg { font-family: 'Segoe UI', system-ui, sans-serif; }
+  .dsvg .node-box { fill: var(--bg3); stroke: var(--border2); stroke-width: 1; }
+  .dsvg .node-text { fill: var(--text); font-size: 12px; }
+  .dsvg .node-sub { fill: var(--text2); font-size: 11px; }
+  .dsvg .arr { stroke: var(--text3); stroke-width: 1.2; fill: none; marker-end: url(#arr); }
+  .dsvg .arr-label { fill: var(--text3); font-size: 10px; }
+  .dsvg .state-active { fill: rgba(124,111,205,0.18); stroke: var(--purple); stroke-width: 1.2; }
+  .dsvg .state-end { fill: rgba(29,158,117,0.18); stroke: var(--teal); stroke-width: 1.2; }
+  .dsvg .state-error { fill: rgba(226,75,74,0.18); stroke: var(--red); stroke-width: 1.2; }
+  .dsvg .state-warn { fill: rgba(239,159,39,0.18); stroke: var(--amber); stroke-width: 1.2; }
+  .dsvg .state-neutral { fill: rgba(136,135,128,0.12); stroke: var(--gray); stroke-width: 1; }
+  .dsvg .decision { fill: rgba(55,138,221,0.15); stroke: var(--blue); stroke-width: 1; }
+  .dsvg .decision-text { fill: var(--blue2); font-size: 11px; font-weight: 600; }
+  .dsvg .start-circle { fill: var(--purple); }
+  .dsvg .end-circle-outer { fill: none; stroke: var(--teal); stroke-width: 2; }
+  .dsvg .end-circle-inner { fill: var(--teal); }
+
+  /* LEGEND */
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0 20px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text2); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* EXP TABLE */
+  .exp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .exp-table th { background: var(--bg3); color: var(--text2); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; padding: 8px 12px; border-bottom: 1px solid var(--border2); text-align: left; }
+  .exp-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+  .exp-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .exp-table .phase { color: var(--purple2); font-weight: 600; }
+
+  /* STATE MACHINE */
+  .state-machine-wrap { position: relative; }
+  .state-node { position: absolute; border-radius: 8px; padding: 10px 14px; font-size: 12px; font-weight: 500; cursor: default; transition: box-shadow 0.2s; border: 1px solid; text-align: center; min-width: 110px; }
+  .state-node:hover { box-shadow: 0 0 0 3px rgba(124,111,205,0.3); }
+
+  /* COLLAPSIBLE */
+  .collapsible { cursor: pointer; user-select: none; }
+  .collapsible .caret { display: inline-block; transition: transform 0.2s; margin-left: 6px; font-size: 10px; }
+  .collapsible.open .caret { transform: rotate(90deg); }
+  .collapse-body { display: none; }
+  .collapse-body.open { display: block; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+  .tab-btn { padding: 8px 18px; font-size: 13px; color: var(--text2); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--purple2); border-bottom-color: var(--purple); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+</style>
+</head>
+<body>
+
+<nav>
+  <h1>ProsthetiX Docs</h1>
+  <div class="section-label">Overview</div>
+  <a href="#overview" class="active">Project Overview</a>
+  <a href="#design-decisions">Design Decisions</a>
+  <div class="section-label">User Scenarios</div>
+  <a href="#scenario-auth">Authentication</a>
+  <a href="#scenario-project">Project Management</a>
+  <a href="#scenario-tasks">Tasks & Subtasks</a>
+  <a href="#scenario-calendar">Calendar & Sync</a>
+  <a href="#scenario-exp">EXP System</a>
+  <div class="section-label">Activity Diagrams</div>
+  <a href="#activity-auth">Auth Flow</a>
+  <a href="#activity-project">Project Flow</a>
+  <a href="#activity-task">Task Flow</a>
+  <a href="#activity-exp">EXP Flow</a>
+  <div class="section-label">State Charts</div>
+  <a href="#state-auth">Auth States</a>
+  <a href="#state-project">Project States</a>
+  <a href="#state-task">Task States</a>
+  <a href="#state-session">Session States</a>
+  <div class="section-label">Appendix</div>
+  <a href="#exp-formula">EXP Formula Reference</a>
+  <a href="#future-notes">Future Update Notes</a>
+</nav>
+
+<main>
+  <p class="page-title">ProsthetiX — Design Documentation</p>
+  <p class="page-sub">User scenarios · Activity diagrams · System state charts · Design decisions</p>
+
+  <!-- ═══════════════════════════════════════════════════ OVERVIEW -->
+  <section id="overview">
+    <div class="section-header">
+      <h2>Project Overview</h2>
+      <span class="badge badge-purple">v0.1 Draft</span>
+    </div>
+    <p style="color:var(--text2); margin-bottom: 16px;">ProsthetiX is a project management web app tailored for October, a prosthetics engineer who struggles with <em>starting</em> projects. The app guides users from project creation through to task completion, with gamification (EXP/leveling), Google Calendar sync, and a structured task/subtask system.</p>
+    <div class="note note-decision">This document reflects all design decisions resolved during the design review, including OTP limits, tap-out behavior, new-task insertion order, subtask display, timezone handling, EXP formula, Google Calendar authority model, trie empty states, and session persistence. See §Design Decisions for full detail.</div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ DESIGN DECISIONS -->
+  <section id="design-decisions">
+    <div class="section-header">
+      <h2>Resolved Design Decisions</h2>
+      <span class="badge badge-teal">All resolved</span>
+    </div>
+    <div style="display:grid;gap:10px;">
+
+      <div class="scenario-card">
+        <h3>D1 · OTP — Expiry & Failure State</h3>
+        <div class="actor">Authentication</div>
+        <p>Max 5 OTP attempts allowed. After 5 failures the session is locked and the user is redirected to the login page with an error. A "Resend OTP" button is shown after 60 seconds. OTP expires after 5 minutes. The 5-attempt count and 5-minute window reset on each fresh OTP issuance.</p>
+      </div>
+
+      <div class="scenario-card">
+        <h3>D2 · New Project — Tap-Out Behavior</h3>
+        <div class="actor">Project Creation</div>
+        <p>Input is trimmed of whitespace before evaluation. If trimmed result is empty, no project is created and the modal closes silently. If trimmed result is non-empty, the project is created immediately using that trimmed string as its title. Projects are deletable via a trash icon on the right of each project bar. Clicking trash shows an "Are you sure? [Yes] [Cancel]" confirmation modal.</p>
+      </div>
+
+      <div class="scenario-card">
+        <h3>D3 · New Task Insertion Order</h3>
+        <div class="actor">Task Management</div>
+        <p>New tasks are inserted at the top (position #1) by default, bumping all existing tasks down by one. The numbering reflows dynamically. A future update will expose a Settings toggle to choose top vs. bottom insertion.</p>
+        <div class="note note-future" style="margin-top:10px;">Future: Settings option — insert new tasks at top or bottom.</div>
+      </div>
+
+      <div class="scenario-card">
+        <h3>D4 · Subtask Display & Editing</h3>
+        <div class="actor">Task / Subtask</div>
+        <p>Subtasks are revealed only when the parent Task is single-clicked (expanding a dropdown). The subtask list is indented within the Task's dropdown space. Double-clicking a task or subtask row enters inline edit mode for the name. Single-click on the row outside edit mode toggles expansion. Listing style (number/bullet/dash) is stored separately on Tasks and Subtasks in the data model even while the same control drives both — this prevents a schema migration when the UI is later split.</p>
+        <div class="note note-future" style="margin-top:10px;">Future: Separate listing-style controls for Tasks vs. Subtasks.</div>
+      </div>
+
+      <div class="scenario-card">
+        <h3>D5 · Timezone Handling</h3>
+        <div class="actor">Due Dates / Calendar</div>
+        <p>User's timezone is detected via <code>Intl.DateTimeFormat().resolvedOptions().timeZone</code> at signup and stored in their profile. All due date/time values are stored as UTC in the database and rendered in the user's stored timezone. The detected timezone is shown next to the Due Time input field and can be overridden in Settings (future).</p>
+      </div>
+
+      <div class="scenario-card">
+        <h3>D6 · EXP Bar</h3>
+        <div class="actor">Gamification</div>
+        <p>EXP is only awarded when <em>all tasks</em> in a project are completed (ticked off). EXP gained = sum of estimated hours across all subtasks in the project × 100. Level-up thresholds are governed by the piecewise function E(L) = 100 × H(L). See §EXP Formula Reference.</p>
+      </div>
+
+      <div class="scenario-card">
+        <h3>D7 · Google Calendar Sync Authority</h3>
+        <div class="actor">Calendar</div>
+        <p>Google Calendar is the source of truth for <em>time</em> (when events are scheduled). The app is the source of truth for <em>task structure</em> (what the event represents, its subtask linkage, completion state). If a user modifies or deletes an event in Google Calendar, the app reflects only the time change — the task itself is unaffected. Time conflicts are flagged in the app's Calendar tab with a warning icon.</p>
+      </div>
+
+      <div class="scenario-card">
+        <h3>D8 · Trie Empty State</h3>
+        <div class="actor">Project Search</div>
+        <p>When the trie returns no matches, the project list area shows: <em>"No projects found."</em> in muted text. No auto-clear, no redirect. Whitespace is stripped from both the query and project names before trie traversal.</p>
+      </div>
+
+      <div class="scenario-card">
+        <h3>D9 · Session Persistence & Logout</h3>
+        <div class="actor">Authentication</div>
+        <p>Default session timeout: 30 minutes of inactivity. Logging out clears the cookie immediately regardless of timeout setting. Future Settings will expose timeout options: 5 min, 15 min, 30 min (default), 1 hr, 3 hr, 1 day, 5 days, Never. "Never" means cookie persists until explicit logout only.</p>
+        <div class="note note-future" style="margin-top:10px;">Future: Session timeout configurable in Settings.</div>
+      </div>
+
+      <div class="scenario-card">
+        <h3>D10 · Completed Task/Subtask Styling</h3>
+        <div class="actor">Task / Subtask</div>
+        <p>Ticking a task or subtask darkens/greys the row background and applies strikethrough styling to the description text. If all subtasks under a task are ticked, the parent task is automatically ticked (and styled). Manual tick of the parent task is always available regardless of subtask state.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ USER SCENARIOS -->
+  <section id="scenario-auth">
+    <div class="section-header">
+      <h2>User Scenarios — Authentication</h2>
+      <span class="badge badge-purple">Auth</span>
+    </div>
+    <div class="scenario-grid">
+
+      <div class="scenario-card">
+        <h3>SC-A1 · First-time signup</h3>
+        <div class="actor">Actor: New user (October)</div>
+        <p>October visits the app for the first time and creates a new account.</p>
+        <ol class="steps">
+          <li>Lands on Login page, clicks "Sign up"</li>
+          <li>Fills: Name, Age, Email, Password, Retype Password</li>
+          <li>All fields validated; passwords match → form submits</li>
+          <li>OTP sent to her email; OTP entry screen appears</li>
+          <li>October opens email, copies 6-digit OTP</li>
+          <li>Enters OTP within 5 minutes → account created</li>
+          <li>Redirected to Main tab with empty project list</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-A2 · Returning login</h3>
+        <div class="actor">Actor: Returning user</div>
+        <p>October returns to the app on a new day after her cookie has expired.</p>
+        <ol class="steps">
+          <li>Lands on Login page</li>
+          <li>Enters email and password</li>
+          <li>Credentials validated → OTP sent to email</li>
+          <li>Enters OTP within 5 minutes → session cookie set</li>
+          <li>Redirected to Main tab (projects intact)</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-A3 · OTP failure & lockout</h3>
+        <div class="actor">Actor: October (typo on OTP)</div>
+        <p>October misreads her OTP and keeps entering wrong codes.</p>
+        <ol class="steps">
+          <li>Enters wrong OTP — attempt 1 of 5, error shown</li>
+          <li>Enters wrong OTP — attempts 2, 3, 4 — each shows remaining count</li>
+          <li>Enters wrong OTP — 5th attempt → session locked</li>
+          <li>Redirected to Login page with message: "Too many failed attempts. Please log in again."</li>
+          <li>October re-enters email/password → new OTP issued, counter reset</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-A4 · OTP expiry</h3>
+        <div class="actor">Actor: Distracted user</div>
+        <p>October gets distracted before entering the OTP.</p>
+        <ol class="steps">
+          <li>Receives OTP email, gets sidetracked for 6 minutes</li>
+          <li>Returns to OTP screen, enters (now expired) code</li>
+          <li>System rejects: "OTP expired. Request a new one."</li>
+          <li>Clicks "Resend OTP" (available after 60s from last send)</li>
+          <li>New OTP sent; counter and 5-minute window reset</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-A5 · Logout</h3>
+        <div class="actor">Actor: October, shared computer</div>
+        <p>October is done working and wants to secure her session.</p>
+        <ol class="steps">
+          <li>Clicks "Log out" in top-right of Main tab</li>
+          <li>Session cookie is immediately invalidated</li>
+          <li>Redirected to Login page</li>
+          <li>No cached project data accessible without re-auth</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-A6 · Signup validation failure</h3>
+        <div class="actor">Actor: New user</div>
+        <p>User attempts to sign up but leaves fields blank or mismatches passwords.</p>
+        <ol class="steps">
+          <li>Clicks "Sign up", partially fills the form</li>
+          <li>Attempts to submit with missing fields → inline field errors shown</li>
+          <li>Fills all fields but password ≠ retype → "Passwords do not match" error</li>
+          <li>Corrects all fields → form proceeds to OTP step</li>
+        </ol>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="scenario-project">
+    <div class="section-header">
+      <h2>User Scenarios — Project Management</h2>
+      <span class="badge badge-teal">Projects</span>
+    </div>
+    <div class="scenario-grid">
+
+      <div class="scenario-card">
+        <h3>SC-P1 · Create new project</h3>
+        <div class="actor">Actor: October</div>
+        <p>October starts a new prosthetics project from the Main tab.</p>
+        <ol class="steps">
+          <li>Clicks "+ New Project" on Main tab</li>
+          <li>Modal fades in: "What is the name of the project?" + large text box</li>
+          <li>Types "Arm Mk3" and presses Enter</li>
+          <li>Modal fades out; project title appears at top of project page</li>
+          <li>Project appears in Main tab list (most recent, top)</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-P2 · Tap out of new project (empty)</h3>
+        <div class="actor">Actor: October (accidental click)</div>
+        <p>October accidentally clicks "+ New Project" but immediately clicks away.</p>
+        <ol class="steps">
+          <li>Modal appears with empty text field</li>
+          <li>October clicks outside the modal</li>
+          <li>Input trimmed → empty → no project created</li>
+          <li>Modal closes silently, Main tab unchanged</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-P3 · Tap out with partial title</h3>
+        <div class="actor">Actor: October (incomplete but intentional)</div>
+        <p>October starts typing a name, gets interrupted, and clicks away.</p>
+        <ol class="steps">
+          <li>Modal open, October types "Arm"</li>
+          <li>Clicks outside modal (or focus leaves)</li>
+          <li>Trimmed input "Arm" is non-empty → project "Arm" created</li>
+          <li>Project appears in list; title is editable by clicking it on the project page</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-P4 · Search for a project</h3>
+        <div class="actor">Actor: October (many projects)</div>
+        <p>October has 20 projects and wants to find "Arm 2" quickly.</p>
+        <ol class="steps">
+          <li>Clicks search box on Main tab</li>
+          <li>Types "A" → trie returns all projects starting with A</li>
+          <li>Types "Arm " → still shows "Arm 1", "Arm 2", "Arm Mk3" (whitespace stripped)</li>
+          <li>Types "Arm 2" → only "Arm 2" shown</li>
+          <li>Clicks "Arm 2" → navigates to that project</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-P5 · Delete a project</h3>
+        <div class="actor">Actor: October (obsolete project)</div>
+        <p>October wants to delete an outdated project.</p>
+        <ol class="steps">
+          <li>Sees project bar on Main tab; hovers → trash icon appears on right</li>
+          <li>Clicks trash icon</li>
+          <li>"Are you sure? [Yes] [Cancel]" modal appears</li>
+          <li>Clicks "Yes" → project removed from list and database</li>
+          <li>EXP previously earned from that project is retained</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-P6 · Rename a project</h3>
+        <div class="actor">Actor: October</div>
+        <p>October decides to rename a project after opening it.</p>
+        <ol class="steps">
+          <li>Opens project → sees title at top</li>
+          <li>Clicks title → inline text input appears, title becomes editable</li>
+          <li>Types new name, presses Enter → name saved permanently</li>
+          <li>Navigates away without pressing Enter → auto-save triggers on blur</li>
+        </ol>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="scenario-tasks">
+    <div class="section-header">
+      <h2>User Scenarios — Tasks & Subtasks</h2>
+      <span class="badge badge-amber">Tasks</span>
+    </div>
+    <div class="scenario-grid">
+
+      <div class="scenario-card">
+        <h3>SC-T1 · Add tasks to a project</h3>
+        <div class="actor">Actor: October</div>
+        <p>October opens a fresh project and adds her first research tasks.</p>
+        <ol class="steps">
+          <li>Opens project → empty list, line bar with "New Task" button visible</li>
+          <li>Clicks "New Task" → prompt changes to "Knowledge/Research needed…"</li>
+          <li>Types "Research carbon fibre suppliers" → presses Enter → task inserted at #1</li>
+          <li>Types "CAD model elbow joint" → Enter → becomes new #1, previous becomes #2</li>
+          <li>Clicks "Done Adding Tasks" → "Are you sure? Yes / No" prompt appears</li>
+          <li>Clicks "Yes" → returns to normal view with 2 tasks listed</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-T2 · Reorder tasks by drag</h3>
+        <div class="actor">Actor: October</div>
+        <p>October wants to reprioritise tasks after adding them.</p>
+        <ol class="steps">
+          <li>Sees task list; holds left side of task #3 row</li>
+          <li>Drags upward — numbering on all rows updates live as she drags</li>
+          <li>Releases above task #1 → formerly task #3 is now #1; others shift down</li>
+          <li>Dragging works both inside and outside "Add Task" mode</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-T3 · Add subtasks</h3>
+        <div class="actor">Actor: October</div>
+        <p>October breaks down a task into subtasks with time estimates.</p>
+        <ol class="steps">
+          <li>Single-clicks task "Research carbon fibre suppliers" → dropdown opens</li>
+          <li>Clicks "Edit or Add Subtask" inside dropdown</li>
+          <li>Types "Email 3 suppliers for quotes" → Enter → subtask added at #1</li>
+          <li>Enters estimated time: 0.5 hr; sets due date via calendar picker</li>
+          <li>Clicks "Done Adding Subtasks" → confirms → subtask list shown indented</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-T4 · Tick off subtask & task auto-completion</h3>
+        <div class="actor">Actor: October</div>
+        <p>October finishes a subtask; the parent task auto-completes.</p>
+        <ol class="steps">
+          <li>Ticks checkbox on the only subtask under "Research carbon fibre suppliers"</li>
+          <li>Subtask row turns grey, text strikes through</li>
+          <li>All subtasks now ticked → parent task auto-ticked</li>
+          <li>Parent task row also greys out and strikes through</li>
+          <li>If all project tasks complete → EXP calculation triggers</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-T5 · Change listing style</h3>
+        <div class="actor">Actor: October (preference)</div>
+        <p>October prefers bullets over numbers for a particular project.</p>
+        <ol class="steps">
+          <li>In the project toolbar line, clicks the bullet (○) button</li>
+          <li>All task prefixes update to bullets immediately</li>
+          <li>Subtasks also update (same control drives both for now)</li>
+          <li>Data model stores style separately for tasks vs. subtasks — enabling future split</li>
+        </ol>
+        <div class="note note-future" style="margin-top:8px;">Future: separate controls per level.</div>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-T6 · Set subtask due date & calendar push</h3>
+        <div class="actor">Actor: October</div>
+        <p>October assigns a deadline to a subtask and it appears in her calendar.</p>
+        <ol class="steps">
+          <li>In "Edit or Add Subtask" mode, clicks "None" next to Due Date</li>
+          <li>Mini calendar picker opens; October selects a date</li>
+          <li>Due Time field unlocks; October enters 3:00 PM (auto-timezone: EST)</li>
+          <li>Saves → subtask has due date/time stored in UTC</li>
+          <li>Event appears in app Calendar tab and is pushed to Google Calendar</li>
+        </ol>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="scenario-calendar">
+    <div class="section-header">
+      <h2>User Scenarios — Calendar & Google Sync</h2>
+      <span class="badge badge-blue">Calendar</span>
+    </div>
+    <div class="scenario-grid">
+
+      <div class="scenario-card">
+        <h3>SC-C1 · View calendar tab</h3>
+        <div class="actor">Actor: October</div>
+        <p>October switches to the Calendar tab to see all upcoming deadlines.</p>
+        <ol class="steps">
+          <li>Clicks Calendar button (top right of Main tab)</li>
+          <li>FullCalendar renders with all subtask due dates as events</li>
+          <li>Events are colour-coded by project</li>
+          <li>October can click any event to jump to its subtask</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-C2 · Google Calendar edit conflict</h3>
+        <div class="actor">Actor: October (edits in Google Calendar)</div>
+        <p>October reschedules an event in Google Calendar; app reflects time update.</p>
+        <ol class="steps">
+          <li>October moves event in Google Calendar to a different time</li>
+          <li>App syncs on next open (or periodic sync): event time updated</li>
+          <li>Subtask due date/time updated to match new time</li>
+          <li>Task structure, name, and completion state unchanged</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-C3 · Google Calendar event deletion</h3>
+        <div class="actor">Actor: October</div>
+        <p>October deletes a calendar event. The subtask due date is cleared.</p>
+        <ol class="steps">
+          <li>October deletes event in Google Calendar</li>
+          <li>App syncs → subtask Due Date resets to "None", Due Time locked</li>
+          <li>Subtask itself still exists and is not deleted</li>
+          <li>Warning shown in Calendar tab: "1 subtask had its due date cleared via Google Calendar"</li>
+        </ol>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="scenario-exp">
+    <div class="section-header">
+      <h2>User Scenarios — EXP System</h2>
+      <span class="badge badge-coral">EXP</span>
+    </div>
+    <div class="scenario-grid">
+
+      <div class="scenario-card">
+        <h3>SC-E1 · Earn EXP completing a project</h3>
+        <div class="actor">Actor: October</div>
+        <p>October completes all tasks in a project and gains EXP.</p>
+        <ol class="steps">
+          <li>All tasks in "Arm Mk3" ticked → project considered complete</li>
+          <li>System sums all subtask estimated hours across the project: e.g., 6.5 hrs</li>
+          <li>EXP gained = 6.5 × 100 = 650 EXP</li>
+          <li>EXP bar in dashboard animates to new value</li>
+          <li>If threshold crossed → level-up animation plays</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-E2 · Level up across boundary</h3>
+        <div class="actor">Actor: October (level 6 → 8)</div>
+        <p>October gains enough EXP to cross two level boundaries at once.</p>
+        <ol class="steps">
+          <li>Was at level 6 (needs 100 EXP/hr × 1 hr = 100 EXP to level)</li>
+          <li>Earns 250 EXP from completed project</li>
+          <li>Level 6 → 7 (100 EXP used), then 7 → 8 (200 EXP used)</li>
+          <li>Level-up animation plays twice in sequence</li>
+          <li>Remaining EXP (0) rolls into level 8 bar</li>
+        </ol>
+      </div>
+
+      <div class="scenario-card">
+        <h3>SC-E3 · No EXP for partial project</h3>
+        <div class="actor">Actor: October</div>
+        <p>October ticks 9 out of 10 tasks. EXP is NOT awarded yet.</p>
+        <ol class="steps">
+          <li>9/10 tasks ticked in "Arm Mk3"</li>
+          <li>EXP bar unchanged — no partial awards</li>
+          <li>Final task ticked → all tasks complete → EXP triggers</li>
+        </ol>
+        <div class="note" style="margin-top:8px;">EXP is all-or-nothing per project. No partial credit.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ ACTIVITY DIAGRAMS -->
+  <section id="activity-auth">
+    <div class="section-header">
+      <h2>Activity Diagram — Authentication Flow</h2>
+      <span class="badge badge-purple">Auth</span>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--purple);border-radius:50%"></div> Start/End</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(124,111,205,0.18);border:1px solid var(--purple)"></div> Action</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(55,138,221,0.15);border:1px solid var(--blue)"></div> Decision</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(226,75,74,0.18);border:1px solid var(--red)"></div> Error/Lock</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(29,158,117,0.18);border:1px solid var(--teal)"></div> Success</div>
+    </div>
+    <div class="diagram-wrap">
+      <svg class="dsvg" width="100%" viewBox="0 0 860 1020" role="img">
+        <title>Authentication Flow Diagram</title>
+        <desc>Activity diagram for login, signup, and OTP verification flows</desc>
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#6a6864" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <!-- START -->
+        <circle cx="200" cy="30" r="10" class="start-circle"/>
+        <line x1="200" y1="40" x2="200" y2="64" class="arr" marker-end="url(#arr)"/>
+
+        <!-- Login page -->
+        <rect x="120" y="66" width="160" height="44" rx="8" class="state-active"/>
+        <text x="200" y="88" text-anchor="middle" class="node-text" font-size="12" font-weight="600" fill="#a99ef5">Login Page</text>
+        <text x="200" y="103" text-anchor="middle" class="node-sub">Email + password fields</text>
+
+        <!-- Decision: new or returning -->
+        <polygon points="200,126 280,150 200,174 120,150" class="decision"/>
+        <text x="200" y="147" text-anchor="middle" class="decision-text">New user?</text>
+        <text x="200" y="160" text-anchor="middle" class="decision-text">Sign up?</text>
+
+        <!-- YES → SIGNUP branch (right side) -->
+        <line x1="280" y1="150" x2="500" y2="150" class="arr" marker-end="url(#arr)"/>
+        <text x="390" y="144" text-anchor="middle" class="arr-label" fill="#85b7eb">Yes → Sign up</text>
+
+        <!-- SIGNUP FORM -->
+        <rect x="460" y="130" width="200" height="44" rx="8" class="state-active"/>
+        <text x="560" y="150" text-anchor="middle" class="node-text" font-size="12" font-weight="600" fill="#a99ef5">Signup Form</text>
+        <text x="560" y="165" text-anchor="middle" class="node-sub">Name, Age, Email, Pass, Retype</text>
+
+        <!-- Decision: fields valid -->
+        <polygon points="560,190 640,214 560,238 480,214" class="decision"/>
+        <text x="560" y="210" text-anchor="middle" class="decision-text">All fields</text>
+        <text x="560" y="223" text-anchor="middle" class="decision-text">valid?</text>
+
+        <!-- NO → show inline errors -->
+        <line x1="640" y1="214" x2="700" y2="214" class="arr" marker-end="url(#arr)"/>
+        <rect x="700" y="196" width="140" height="36" rx="8" class="state-error"/>
+        <text x="770" y="214" text-anchor="middle" class="node-text" fill="#f09595" font-size="11">Show field errors</text>
+        <line x1="770" y1="196" x2="770" y2="174" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="770" y1="174" x2="560" y2="174" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr)"/>
+
+        <!-- YES DOWN from signup form valid -->
+        <line x1="560" y1="238" x2="560" y2="262" class="arr" marker-end="url(#arr)"/>
+        <text x="548" y="255" text-anchor="end" class="arr-label" fill="#85b7eb">Yes</text>
+
+        <!-- SEND OTP (shared) — we'll position it center below both paths -->
+        <!-- NO branch from New user? decision: Login path -->
+        <line x1="200" y1="174" x2="200" y2="198" class="arr" marker-end="url(#arr)"/>
+        <text x="188" y="191" text-anchor="end" class="arr-label" fill="#85b7eb">No</text>
+
+        <!-- Validate credentials -->
+        <rect x="120" y="200" width="160" height="44" rx="8" class="state-active"/>
+        <text x="200" y="220" text-anchor="middle" class="node-text" font-size="12" font-weight="600" fill="#a99ef5">Validate Credentials</text>
+        <text x="200" y="235" text-anchor="middle" class="node-sub">Check email + password</text>
+
+        <!-- Decision: credentials ok? -->
+        <polygon points="200,260 280,284 200,308 120,284" class="decision"/>
+        <text x="200" y="280" text-anchor="middle" class="decision-text">Credentials</text>
+        <text x="200" y="293" text-anchor="middle" class="decision-text">valid?</text>
+
+        <!-- No creds → error -->
+        <line x1="120" y1="284" x2="60" y2="284" class="arr" marker-end="url(#arr)"/>
+        <rect x="-60" y="266" width="120" height="36" rx="8" class="state-error"/>
+        <text x="0" y="284" text-anchor="middle" class="node-text" fill="#f09595" font-size="11">Invalid credentials</text>
+        <line x1="0" y1="266" x2="0" y2="244" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="0" y1="244" x2="120" y2="244" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="120" y1="244" x2="120" y2="210" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr)"/>
+
+        <!-- Yes creds → send OTP -->
+        <line x1="200" y1="308" x2="200" y2="332" class="arr" marker-end="url(#arr)"/>
+        <text x="212" y="325" class="arr-label" fill="#85b7eb">Yes</text>
+
+        <!-- MERGE LINES: signup valid (560,262) and login valid (200,332) both go to SEND OTP -->
+        <!-- Draw a merged box at center -->
+        <line x1="560" y1="262" x2="560" y2="348" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="560" y1="348" x2="340" y2="348" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr)"/>
+
+        <rect x="120" y="332" width="160" height="44" rx="8" class="state-active"/>
+        <text x="200" y="352" text-anchor="middle" class="node-text" font-size="12" font-weight="600" fill="#a99ef5">Send OTP</text>
+        <text x="200" y="367" text-anchor="middle" class="node-sub">Email 6-digit code (5 min TTL)</text>
+
+        <!-- OTP entry -->
+        <line x1="200" y1="376" x2="200" y2="400" class="arr" marker-end="url(#arr)"/>
+        <rect x="120" y="402" width="160" height="44" rx="8" class="state-active"/>
+        <text x="200" y="422" text-anchor="middle" class="node-text" font-size="12" font-weight="600" fill="#a99ef5">OTP Entry Screen</text>
+        <text x="200" y="437" text-anchor="middle" class="node-sub">Max 5 attempts, 5 min window</text>
+
+        <!-- Decision: OTP correct? -->
+        <line x1="200" y1="446" x2="200" y2="470" class="arr" marker-end="url(#arr)"/>
+        <polygon points="200,472 280,496 200,520 120,496" class="decision"/>
+        <text x="200" y="492" text-anchor="middle" class="decision-text">OTP</text>
+        <text x="200" y="505" text-anchor="middle" class="decision-text">correct?</text>
+
+        <!-- Expired path -->
+        <line x1="280" y1="496" x2="400" y2="496" class="arr" marker-end="url(#arr)"/>
+        <rect x="400" y="478" width="150" height="36" rx="8" class="state-warn"/>
+        <text x="475" y="496" text-anchor="middle" class="node-text" fill="#fac775" font-size="11">OTP expired? Resend</text>
+        <line x1="475" y1="478" x2="475" y2="440" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="475" y1="440" x2="340" y2="440" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="340" y1="440" x2="340" y2="348" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text x="410" y="434" class="arr-label" fill="#fac775">Resend → reset counter</text>
+
+        <!-- Wrong OTP → increment counter -->
+        <line x1="120" y1="496" x2="40" y2="496" class="arr" marker-end="url(#arr)"/>
+        <rect x="-80" y="478" width="120" height="36" rx="8" class="state-error"/>
+        <text x="-20" y="496" text-anchor="middle" class="node-text" fill="#f09595" font-size="11">Wrong OTP</text>
+
+        <!-- Decision: 5 attempts hit? -->
+        <line x1="-20" y1="514" x2="-20" y2="538" class="arr" marker-end="url(#arr)"/>
+        <polygon points="-20,540 60,564 -20,588 -100,564" class="decision"/>
+        <text x="-20" y="560" text-anchor="middle" class="decision-text">5 attempts</text>
+        <text x="-20" y="573" text-anchor="middle" class="decision-text">reached?</text>
+
+        <!-- No → retry -->
+        <line x1="-20" y1="588" x2="-20" y2="620" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="-20" y1="620" x2="120" y2="620" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="120" y1="620" x2="120" y2="450" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text x="48" y="615" class="arr-label" fill="#85b7eb">No → retry (show count)</text>
+
+        <!-- Yes → lock -->
+        <line x1="60" y1="564" x2="180" y2="564" class="arr" marker-end="url(#arr)"/>
+        <rect x="180" y="546" width="160" height="36" rx="8" class="state-error"/>
+        <text x="260" y="566" text-anchor="middle" class="node-text" fill="#f09595" font-size="11">Session locked → redirect login</text>
+
+        <!-- YES correct OTP → session created -->
+        <line x1="200" y1="520" x2="200" y2="640" class="arr" marker-end="url(#arr)"/>
+        <text x="212" y="637" class="arr-label" fill="#5dcaa5">Correct</text>
+        <rect x="120" y="642" width="160" height="44" rx="8" class="state-end"/>
+        <text x="200" y="662" text-anchor="middle" class="node-text" font-size="12" font-weight="600" fill="#5dcaa5">Session Created</text>
+        <text x="200" y="677" text-anchor="middle" class="node-sub">Cookie set (30 min default)</text>
+
+        <!-- Main tab -->
+        <line x1="200" y1="686" x2="200" y2="710" class="arr" marker-end="url(#arr)"/>
+        <rect x="120" y="712" width="160" height="44" rx="8" class="state-end"/>
+        <text x="200" y="732" text-anchor="middle" class="node-text" font-size="12" font-weight="600" fill="#5dcaa5">Main Tab</text>
+        <text x="200" y="747" text-anchor="middle" class="node-sub">Projects list rendered</text>
+
+        <!-- END -->
+        <line x1="200" y1="756" x2="200" y2="780" class="arr" marker-end="url(#arr)"/>
+        <circle cx="200" cy="790" r="10" class="end-circle-outer" stroke="var(--teal)" stroke-width="2" fill="none"/>
+        <circle cx="200" cy="790" r="5" class="end-circle-inner" fill="var(--teal)"/>
+      </svg>
+    </div>
+  </section>
+
+  <section id="activity-project">
+    <div class="section-header">
+      <h2>Activity Diagram — Project Creation Flow</h2>
+      <span class="badge badge-teal">Projects</span>
+    </div>
+    <div class="diagram-wrap">
+      <svg class="dsvg" width="100%" viewBox="0 0 700 760" role="img">
+        <title>Project Creation Activity Diagram</title>
+        <desc>Steps from clicking new project through title creation and deletion</desc>
+        <defs>
+          <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#6a6864" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <circle cx="350" cy="24" r="10" class="start-circle"/>
+        <line x1="350" y1="34" x2="350" y2="58" class="arr" marker-end="url(#arr2)"/>
+
+        <rect x="250" y="60" width="200" height="44" rx="8" class="state-active"/>
+        <text x="350" y="80" text-anchor="middle" class="node-text" font-weight="600" fill="#a99ef5">Main Tab</text>
+        <text x="350" y="95" text-anchor="middle" class="node-sub">Click "+ New Project"</text>
+
+        <line x1="350" y1="104" x2="350" y2="128" class="arr" marker-end="url(#arr2)"/>
+
+        <rect x="250" y="130" width="200" height="44" rx="8" class="state-active"/>
+        <text x="350" y="150" text-anchor="middle" class="node-text" font-weight="600" fill="#a99ef5">Title Modal</text>
+        <text x="350" y="165" text-anchor="middle" class="node-sub">"What is the name?" + input</text>
+
+        <line x1="350" y1="174" x2="350" y2="198" class="arr" marker-end="url(#arr2)"/>
+        <polygon points="350,200 430,224 350,248 270,224" class="decision"/>
+        <text x="350" y="220" text-anchor="middle" class="decision-text">User action?</text>
+
+        <!-- Press Enter -->
+        <line x1="350" y1="248" x2="350" y2="272" class="arr" marker-end="url(#arr2)"/>
+        <text x="362" y="265" class="arr-label" fill="#85b7eb">Press Enter</text>
+
+        <rect x="250" y="274" width="200" height="44" rx="8" class="state-neutral"/>
+        <text x="350" y="294" text-anchor="middle" class="node-text" font-weight="600">Trim whitespace</text>
+        <text x="350" y="309" text-anchor="middle" class="node-sub">Sanitize input string</text>
+
+        <line x1="350" y1="318" x2="350" y2="342" class="arr" marker-end="url(#arr2)"/>
+        <polygon points="350,344 430,368 350,392 270,368" class="decision"/>
+        <text x="350" y="364" text-anchor="middle" class="decision-text">Trimmed</text>
+        <text x="350" y="377" text-anchor="middle" class="decision-text">empty?</text>
+
+        <!-- Empty → close -->
+        <line x1="430" y1="368" x2="570" y2="368" class="arr" marker-end="url(#arr2)"/>
+        <rect x="570" y="350" width="120" height="36" rx="8" class="state-error"/>
+        <text x="630" y="368" text-anchor="middle" class="node-text" fill="#f09595" font-size="11">Close modal silently</text>
+        <line x1="630" y1="350" x2="630" y2="90" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="630" y1="90" x2="450" y2="90" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr2)"/>
+
+        <!-- Not empty → create -->
+        <line x1="350" y1="392" x2="350" y2="416" class="arr" marker-end="url(#arr2)"/>
+        <text x="338" y="409" text-anchor="end" class="arr-label" fill="#5dcaa5">No</text>
+
+        <rect x="250" y="418" width="200" height="44" rx="8" class="state-end"/>
+        <text x="350" y="438" text-anchor="middle" class="node-text" font-weight="600" fill="#5dcaa5">Project Created</text>
+        <text x="350" y="453" text-anchor="middle" class="node-sub">Title saved, project page opens</text>
+
+        <line x1="350" y1="462" x2="350" y2="486" class="arr" marker-end="url(#arr2)"/>
+        <rect x="250" y="488" width="200" height="44" rx="8" class="state-active"/>
+        <text x="350" y="508" text-anchor="middle" class="node-text" font-weight="600" fill="#a99ef5">Project Page</text>
+        <text x="350" y="523" text-anchor="middle" class="node-sub">Title editable, empty task list</text>
+
+        <!-- Tap-out path from modal -->
+        <line x1="270" y1="224" x2="80" y2="224" class="arr" marker-end="url(#arr2)"/>
+        <text x="175" y="218" text-anchor="middle" class="arr-label" fill="#85b7eb">Tap out</text>
+        <rect x="-30" y="206" width="110" height="36" rx="8" class="state-neutral"/>
+        <text x="25" y="224" text-anchor="middle" class="node-text" font-size="11">Evaluate input</text>
+        <line x1="25" y1="242" x2="25" y2="300" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="25" y1="300" x2="270" y2="300" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr2)"/>
+        <text x="140" y="294" class="arr-label" fill="#85b7eb">→ same trim logic</text>
+
+        <!-- DELETE flow -->
+        <line x1="350" y1="532" x2="350" y2="556" class="arr" marker-end="url(#arr2)"/>
+        <rect x="250" y="558" width="200" height="36" rx="8" class="state-neutral"/>
+        <text x="350" y="578" text-anchor="middle" class="node-text" font-size="11">User clicks trash icon on project</text>
+
+        <line x1="350" y1="594" x2="350" y2="618" class="arr" marker-end="url(#arr2)"/>
+        <rect x="250" y="620" width="200" height="36" rx="8" class="state-warn"/>
+        <text x="350" y="640" text-anchor="middle" class="node-text" fill="#fac775" font-size="11">"Are you sure?" modal</text>
+
+        <line x1="350" y1="656" x2="350" y2="680" class="arr" marker-end="url(#arr2)"/>
+        <polygon points="350,682 430,700 350,718 270,700" class="decision"/>
+        <text x="350" y="700" text-anchor="middle" class="decision-text">Confirm?</text>
+
+        <line x1="430" y1="700" x2="560" y2="700" class="arr" marker-end="url(#arr2)"/>
+        <rect x="560" y="682" width="120" height="36" rx="8" class="state-end"/>
+        <text x="620" y="700" text-anchor="middle" class="node-text" fill="#5dcaa5" font-size="11">Project deleted</text>
+        <text x="490" y="694" class="arr-label" fill="#5dcaa5">Yes</text>
+
+        <line x1="270" y1="700" x2="180" y2="700" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="180" y1="700" x2="180" y2="576" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr2)"/>
+        <text x="172" y="694" text-anchor="end" class="arr-label" fill="#85b7eb">No → back</text>
+
+        <circle cx="350" cy="740" r="10" class="end-circle-outer" stroke="var(--teal)" stroke-width="2" fill="none"/>
+        <circle cx="350" cy="740" r="5" fill="var(--teal)"/>
+      </svg>
+    </div>
+  </section>
+
+  <section id="activity-task">
+    <div class="section-header">
+      <h2>Activity Diagram — Task & Subtask Flow</h2>
+      <span class="badge badge-amber">Tasks</span>
+    </div>
+    <div class="diagram-wrap">
+      <svg class="dsvg" width="100%" viewBox="0 0 820 900" role="img">
+        <title>Task and Subtask Activity Diagram</title>
+        <desc>Full flow for creating, editing, reordering, and completing tasks and subtasks</desc>
+        <defs>
+          <marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#6a6864" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <circle cx="200" cy="24" r="10" class="start-circle"/>
+        <line x1="200" y1="34" x2="200" y2="58" class="arr" marker-end="url(#arr3)"/>
+
+        <rect x="120" y="60" width="160" height="44" rx="8" class="state-active"/>
+        <text x="200" y="80" text-anchor="middle" class="node-text" font-weight="600" fill="#a99ef5">Project Page</text>
+        <text x="200" y="95" text-anchor="middle" class="node-sub">Empty list, toolbar visible</text>
+
+        <line x1="200" y1="104" x2="200" y2="128" class="arr" marker-end="url(#arr3)"/>
+        <polygon points="200,130 280,154 200,178 120,154" class="decision"/>
+        <text x="200" y="150" text-anchor="middle" class="decision-text">User action?</text>
+
+        <!-- New Task path -->
+        <line x1="200" y1="178" x2="200" y2="202" class="arr" marker-end="url(#arr3)"/>
+        <text x="212" y="195" class="arr-label" fill="#85b7eb">Click "New Task"</text>
+
+        <rect x="120" y="204" width="160" height="44" rx="8" class="state-active"/>
+        <text x="200" y="222" text-anchor="middle" class="node-text" font-weight="600" fill="#a99ef5">Add Task Mode</text>
+        <text x="200" y="237" text-anchor="middle" class="node-sub">Input box + Done button</text>
+
+        <line x1="200" y1="248" x2="200" y2="272" class="arr" marker-end="url(#arr3)"/>
+        <rect x="120" y="274" width="160" height="36" rx="8" class="state-neutral"/>
+        <text x="200" y="294" text-anchor="middle" class="node-text" font-size="11">Type task → press Enter</text>
+
+        <line x1="200" y1="310" x2="200" y2="334" class="arr" marker-end="url(#arr3)"/>
+        <rect x="120" y="336" width="160" height="44" rx="8" class="state-active"/>
+        <text x="200" y="356" text-anchor="middle" class="node-text" font-weight="600" fill="#a99ef5">Task inserted at #1</text>
+        <text x="200" y="371" text-anchor="middle" class="node-sub">All others renumbered</text>
+
+        <div class="note note-future">Future: top/bottom insert toggle in Settings</div>
+
+        <!-- loop back to add more -->
+        <line x1="280" y1="356" x2="380" y2="356" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="380" y1="356" x2="380" y2="284" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="380" y1="284" x2="280" y2="284" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr3)"/>
+        <text x="385" y="325" class="arr-label" fill="#85b7eb">Add more?</text>
+
+        <line x1="200" y1="380" x2="200" y2="404" class="arr" marker-end="url(#arr3)"/>
+        <rect x="120" y="406" width="160" height="36" rx="8" class="state-warn"/>
+        <text x="200" y="426" text-anchor="middle" class="node-text" fill="#fac775" font-size="11">Click "Done Adding Tasks"</text>
+
+        <line x1="200" y1="442" x2="200" y2="466" class="arr" marker-end="url(#arr3)"/>
+        <polygon points="200,468 280,488 200,508 120,488" class="decision"/>
+        <text x="200" y="488" text-anchor="middle" class="decision-text">Confirm?</text>
+
+        <line x1="120" y1="488" x2="60" y2="488" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="60" y1="488" x2="60" y2="420" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr3)"/>
+        <text x="52" y="484" text-anchor="end" class="arr-label" fill="#85b7eb">No</text>
+
+        <line x1="200" y1="508" x2="200" y2="532" class="arr" marker-end="url(#arr3)"/>
+        <text x="212" y="525" class="arr-label" fill="#5dcaa5">Yes</text>
+
+        <!-- Normal project view with tasks -->
+        <rect x="120" y="534" width="160" height="44" rx="8" class="state-end"/>
+        <text x="200" y="554" text-anchor="middle" class="node-text" font-weight="600" fill="#5dcaa5">Project View</text>
+        <text x="200" y="569" text-anchor="middle" class="node-sub">Task list rendered</text>
+
+        <!-- DRAG REORDER branch from project view -->
+        <line x1="280" y1="556" x2="450" y2="556" class="arr" marker-end="url(#arr3)"/>
+        <text x="365" y="550" text-anchor="middle" class="arr-label" fill="#85b7eb">Drag task</text>
+        <rect x="450" y="538" width="160" height="44" rx="8" class="state-neutral"/>
+        <text x="530" y="556" text-anchor="middle" class="node-text" font-weight="600">Drag Reorder</text>
+        <text x="530" y="571" text-anchor="middle" class="node-sub">Numbers update live</text>
+        <line x1="530" y1="582" x2="530" y2="600" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="530" y1="600" x2="280" y2="600" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="280" y1="600" x2="280" y2="568" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr3)"/>
+
+        <!-- TICK TASK path -->
+        <line x1="200" y1="578" x2="200" y2="620" class="arr" marker-end="url(#arr3)"/>
+        <polygon points="200,622 280,642 200,662 120,642" class="decision"/>
+        <text x="200" y="642" text-anchor="middle" class="decision-text">Tick task?</text>
+
+        <line x1="280" y1="642" x2="450" y2="642" class="arr" marker-end="url(#arr3)"/>
+        <rect x="450" y="624" width="160" height="36" rx="8" class="state-neutral"/>
+        <text x="530" y="644" text-anchor="middle" class="node-text" font-size="11">Grey out + strikethrough</text>
+        <line x1="530" y1="660" x2="530" y2="700" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <polygon points="530,702 610,720 530,738 450,720" class="decision"/>
+        <text x="530" y="720" text-anchor="middle" class="decision-text">All tasks</text>
+        <text x="530" y="733" text-anchor="middle" class="decision-text">done?</text>
+        <line x1="610" y1="720" x2="700" y2="720" class="arr" marker-end="url(#arr3)"/>
+        <rect x="700" y="702" width="100" height="36" rx="8" class="state-end"/>
+        <text x="750" y="722" text-anchor="middle" class="node-text" fill="#5dcaa5" font-size="11">EXP awarded</text>
+
+        <!-- SUBTASK path from click on task -->
+        <line x1="120" y1="642" x2="40" y2="642" class="arr" marker-end="url(#arr3)"/>
+        <text x="80" y="636" text-anchor="middle" class="arr-label" fill="#85b7eb">Click task</text>
+        <rect x="-80" y="624" width="120" height="36" rx="8" class="state-active"/>
+        <text x="-20" y="644" text-anchor="middle" class="node-text" fill="#a99ef5" font-size="11">Dropdown expands</text>
+        <line x1="-20" y1="660" x2="-20" y2="700" class="arr" marker-end="url(#arr3)"/>
+        <rect x="-80" y="702" width="120" height="36" rx="8" class="state-neutral"/>
+        <text x="-20" y="722" text-anchor="middle" class="node-text" font-size="11">Subtask list (indented)</text>
+        <text x="-20" y="752" text-anchor="middle" class="node-sub" font-size="10">(same add/tick/drag logic)</text>
+
+        <circle cx="200" cy="870" r="10" class="end-circle-outer" stroke="var(--teal)" stroke-width="2" fill="none"/>
+        <circle cx="200" cy="870" r="5" fill="var(--teal)"/>
+      </svg>
+    </div>
+  </section>
+
+  <section id="activity-exp">
+    <div class="section-header">
+      <h2>Activity Diagram — EXP Award Flow</h2>
+      <span class="badge badge-coral">EXP</span>
+    </div>
+    <div class="diagram-wrap">
+      <svg class="dsvg" width="100%" viewBox="0 0 680 620" role="img">
+        <title>EXP Award Flow</title>
+        <desc>How EXP is computed and levelling is resolved when a project completes</desc>
+        <defs>
+          <marker id="arr4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#6a6864" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <circle cx="340" cy="24" r="10" class="start-circle"/>
+        <line x1="340" y1="34" x2="340" y2="58" class="arr" marker-end="url(#arr4)"/>
+
+        <rect x="240" y="60" width="200" height="44" rx="8" class="state-neutral"/>
+        <text x="340" y="80" text-anchor="middle" class="node-text" font-weight="600">All project tasks ticked</text>
+        <text x="340" y="95" text-anchor="middle" class="node-sub">Trigger EXP calculation</text>
+
+        <line x1="340" y1="104" x2="340" y2="128" class="arr" marker-end="url(#arr4)"/>
+        <rect x="240" y="130" width="200" height="44" rx="8" class="state-active"/>
+        <text x="340" y="150" text-anchor="middle" class="node-text" font-weight="600" fill="#a99ef5">Sum subtask hours</text>
+        <text x="340" y="165" text-anchor="middle" class="node-sub">Σ estimated_hrs across project</text>
+
+        <line x1="340" y1="174" x2="340" y2="198" class="arr" marker-end="url(#arr4)"/>
+        <rect x="240" y="200" width="200" height="44" rx="8" class="state-active"/>
+        <text x="340" y="220" text-anchor="middle" class="node-text" font-weight="600" fill="#a99ef5">Compute EXP gained</text>
+        <text x="340" y="235" text-anchor="middle" class="node-sub">EXP = total_hrs × 100</text>
+
+        <line x1="340" y1="244" x2="340" y2="268" class="arr" marker-end="url(#arr4)"/>
+        <rect x="240" y="270" width="200" height="44" rx="8" class="state-neutral"/>
+        <text x="340" y="290" text-anchor="middle" class="node-text" font-weight="600">Add to user EXP pool</text>
+        <text x="340" y="305" text-anchor="middle" class="node-sub">current_exp += gained</text>
+
+        <line x1="340" y1="314" x2="340" y2="338" class="arr" marker-end="url(#arr4)"/>
+        <polygon points="340,340 420,364 340,388 260,364" class="decision"/>
+        <text x="340" y="360" text-anchor="middle" class="decision-text">EXP ≥ threshold</text>
+        <text x="340" y="373" text-anchor="middle" class="decision-text">for current level?</text>
+
+        <line x1="420" y1="364" x2="540" y2="364" class="arr" marker-end="url(#arr4)"/>
+        <text x="480" y="358" text-anchor="middle" class="arr-label" fill="#5dcaa5">Yes</text>
+        <rect x="540" y="346" width="130" height="36" rx="8" class="state-end"/>
+        <text x="605" y="366" text-anchor="middle" class="node-text" fill="#5dcaa5" font-size="11">Level up! Animation plays</text>
+        <line x1="605" y1="382" x2="605" y2="420" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <rect x="540" y="422" width="130" height="44" rx="8" class="state-active"/>
+        <text x="605" y="442" text-anchor="middle" class="node-text" fill="#a99ef5" font-size="11">Compute next level</text>
+        <text x="605" y="457" text-anchor="middle" class="node-sub" font-size="10">H(L) from piecewise fn</text>
+        <line x1="605" y1="466" x2="605" y2="490" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="605" y1="490" x2="420" y2="490" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="420" y1="490" x2="420" y2="364" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr4)"/>
+        <text x="500" y="484" class="arr-label" fill="#85b7eb">Check again (multi-level)</text>
+
+        <line x1="260" y1="364" x2="140" y2="364" class="arr" marker-end="url(#arr4)"/>
+        <text x="200" y="358" text-anchor="middle" class="arr-label" fill="#85b7eb">No</text>
+        <rect x="40" y="346" width="100" height="36" rx="8" class="state-neutral"/>
+        <text x="90" y="366" text-anchor="middle" class="node-text" font-size="11">EXP bar updates</text>
+
+        <line x1="90" y1="382" x2="90" y2="560" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="90" y1="560" x2="330" y2="560" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr4)"/>
+
+        <line x1="340" y1="388" x2="340" y2="560" class="arr" marker-end="url(#arr4)"/>
+        <text x="352" y="485" class="arr-label" fill="#85b7eb">Overflow → loop resolves</text>
+
+        <circle cx="340" cy="570" r="10" class="end-circle-outer" stroke="var(--teal)" stroke-width="2" fill="none"/>
+        <circle cx="340" cy="570" r="5" fill="var(--teal)"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ STATE CHARTS -->
+  <section id="state-auth">
+    <div class="section-header">
+      <h2>State Chart — Authentication States</h2>
+      <span class="badge badge-purple">Auth</span>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'auth-state-diagram')">Diagram</button>
+      <button class="tab-btn" onclick="switchTab(this,'auth-state-table')">State Table</button>
+    </div>
+    <div id="auth-state-diagram" class="tab-panel active">
+      <div class="diagram-wrap">
+        <svg class="dsvg" width="100%" viewBox="0 0 680 420" role="img">
+          <title>Authentication State Machine</title>
+          <defs>
+            <marker id="arr5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="#6a6864" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+
+          <circle cx="340" cy="20" r="8" class="start-circle"/>
+          <line x1="340" y1="28" x2="340" y2="52" class="arr" marker-end="url(#arr5)"/>
+
+          <!-- UNAUTHENTICATED -->
+          <rect x="240" y="54" width="200" height="50" rx="8" class="state-neutral"/>
+          <text x="340" y="76" text-anchor="middle" class="node-text" font-weight="600">UNAUTHENTICATED</text>
+          <text x="340" y="92" text-anchor="middle" class="node-sub">Login / Signup screen</text>
+
+          <!-- → AWAITING_OTP -->
+          <line x1="340" y1="104" x2="340" y2="134" class="arr" marker-end="url(#arr5)"/>
+          <text x="352" y="124" class="arr-label" fill="#85b7eb">Credentials valid</text>
+          <rect x="240" y="136" width="200" height="50" rx="8" class="state-active"/>
+          <text x="340" y="158" text-anchor="middle" class="node-text" font-weight="600" fill="#a99ef5">AWAITING_OTP</text>
+          <text x="340" y="173" text-anchor="middle" class="node-sub">OTP sent, 5 min window, 5 tries</text>
+
+          <!-- → AUTHENTICATED -->
+          <line x1="340" y1="186" x2="340" y2="216" class="arr" marker-end="url(#arr5)"/>
+          <text x="352" y="206" class="arr-label" fill="#5dcaa5">OTP correct</text>
+          <rect x="240" y="218" width="200" height="50" rx="8" class="state-end"/>
+          <text x="340" y="240" text-anchor="middle" class="node-text" font-weight="600" fill="#5dcaa5">AUTHENTICATED</text>
+          <text x="340" y="255" text-anchor="middle" class="node-sub">Session cookie active</text>
+
+          <!-- Timeout → UNAUTHENTICATED -->
+          <line x1="440" y1="243" x2="540" y2="243" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+          <line x1="540" y1="243" x2="540" y2="79" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+          <line x1="540" y1="79" x2="440" y2="79" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr5)"/>
+          <text x="548" y="165" class="arr-label" fill="#fac775">Timeout / logout</text>
+
+          <!-- OTP_LOCKED -->
+          <line x1="240" y1="161" x2="140" y2="161" class="arr" marker-end="url(#arr5)"/>
+          <rect x="20" y="143" width="120" height="50" rx="8" class="state-error"/>
+          <text x="80" y="163" text-anchor="middle" class="node-text" fill="#f09595" font-weight="600">OTP_LOCKED</text>
+          <text x="80" y="178" text-anchor="middle" class="node-sub">5 fails or expiry</text>
+          <line x1="80" y1="193" x2="80" y2="230" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+          <line x1="80" y1="230" x2="240" y2="230" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+          <line x1="240" y1="230" x2="240" y2="200" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr5)"/>
+          <text x="50" y="224" class="arr-label" fill="#85b7eb">Re-login</text>
+
+          <!-- SESSION_EXPIRED -->
+          <rect x="240" y="320" width="200" height="50" rx="8" class="state-warn"/>
+          <text x="340" y="342" text-anchor="middle" class="node-text" fill="#fac775" font-weight="600">SESSION_EXPIRED</text>
+          <text x="340" y="357" text-anchor="middle" class="node-sub">30 min inactivity (default)</text>
+          <line x1="340" y1="268" x2="340" y2="320" class="arr" marker-end="url(#arr5)"/>
+          <text x="352" y="298" class="arr-label" fill="#fac775">Inactivity timeout</text>
+          <line x1="440" y1="345" x2="510" y2="345" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+          <line x1="510" y1="345" x2="510" y2="395" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+          <line x1="510" y1="395" x2="110" y2="395" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+          <line x1="110" y1="395" x2="110" y2="79" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr5)"/>
+          <text x="560" y="220" class="arr-label" fill="#85b7eb">→ Login</text>
+        </svg>
+      </div>
+    </div>
+    <div id="auth-state-table" class="tab-panel">
+      <table class="exp-table" style="margin-top:12px;">
+        <thead><tr><th>State</th><th>Entry Condition</th><th>Exit Condition</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr><td class="phase">UNAUTHENTICATED</td><td>App opened / logout / session expired</td><td>Valid credentials submitted</td><td>Show login/signup form</td></tr>
+          <tr><td class="phase">AWAITING_OTP</td><td>Credentials validated (login or signup)</td><td>OTP correct OR 5 failures OR 5 min expiry</td><td>Send OTP email, start timer & counter</td></tr>
+          <tr><td class="phase">AUTHENTICATED</td><td>OTP correct</td><td>Logout / timeout / manual expiry</td><td>Set session cookie (30 min default), load Main tab</td></tr>
+          <tr><td class="phase">OTP_LOCKED</td><td>5 failed OTP attempts</td><td>User re-initiates login</td><td>Show lock message, redirect to login</td></tr>
+          <tr><td class="phase">SESSION_EXPIRED</td><td>30 min inactivity in AUTHENTICATED</td><td>User re-logs in</td><td>Clear cookie, redirect to login</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="state-project">
+    <div class="section-header">
+      <h2>State Chart — Project States</h2>
+      <span class="badge badge-teal">Projects</span>
+    </div>
+    <div class="diagram-wrap">
+      <svg class="dsvg" width="100%" viewBox="0 0 680 380" role="img">
+        <title>Project State Machine</title>
+        <defs>
+          <marker id="arr6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#6a6864" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <circle cx="80" cy="60" r="8" class="start-circle"/>
+        <line x1="88" y1="60" x2="120" y2="60" class="arr" marker-end="url(#arr6)"/>
+
+        <rect x="122" y="40" width="150" height="40" rx="8" class="state-neutral"/>
+        <text x="197" y="60" text-anchor="middle" class="node-text" font-weight="600">DRAFT</text>
+        <text x="197" y="73" text-anchor="middle" class="node-sub">Title modal open</text>
+
+        <line x1="272" y1="60" x2="340" y2="60" class="arr" marker-end="url(#arr6)"/>
+        <text x="306" y="54" text-anchor="middle" class="arr-label" fill="#85b7eb">Enter title</text>
+
+        <rect x="342" y="40" width="150" height="40" rx="8" class="state-active"/>
+        <text x="417" y="60" text-anchor="middle" class="node-text" font-weight="600" fill="#a99ef5">ACTIVE</text>
+        <text x="417" y="73" text-anchor="middle" class="node-sub">Has at least 1 task</text>
+
+        <line x1="417" y1="80" x2="417" y2="130" class="arr" marker-end="url(#arr6)"/>
+        <text x="429" y="110" class="arr-label" fill="#5dcaa5">All tasks done</text>
+
+        <rect x="342" y="132" width="150" height="40" rx="8" class="state-end"/>
+        <text x="417" y="152" text-anchor="middle" class="node-text" font-weight="600" fill="#5dcaa5">COMPLETED</text>
+        <text x="417" y="165" text-anchor="middle" class="node-sub">EXP awarded</text>
+
+        <line x1="417" y1="172" x2="417" y2="220" class="arr" marker-end="url(#arr6)"/>
+        <text x="429" y="200" class="arr-label" fill="#85b7eb">Untick a task</text>
+
+        <rect x="342" y="222" width="150" height="40" rx="8" class="state-warn"/>
+        <text x="417" y="242" text-anchor="middle" class="node-text" fill="#fac775" font-weight="600">INCOMPLETE</text>
+        <text x="417" y="255" text-anchor="middle" class="node-sub">Partially ticked</text>
+
+        <line x1="342" y1="242" x2="272" y2="242" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="272" y1="242" x2="272" y2="60" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr6)"/>
+        <text x="255" y="155" class="arr-label" fill="#85b7eb" text-anchor="end">Re-tick all</text>
+
+        <!-- DELETED from any state -->
+        <rect x="560" y="132" width="100" height="40" rx="8" class="state-error"/>
+        <text x="610" y="152" text-anchor="middle" class="node-text" fill="#f09595" font-weight="600">DELETED</text>
+        <text x="610" y="165" text-anchor="middle" class="node-sub">Confirmed trash</text>
+        <line x1="492" y1="60" x2="610" y2="60" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="610" y1="60" x2="610" y2="132" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr6)"/>
+        <text x="540" y="54" class="arr-label" fill="#f09595">Trash + confirm</text>
+
+        <!-- DRAFT → empty tap-out → nothing -->
+        <line x1="197" y1="80" x2="197" y2="150" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <rect x="122" y="152" width="150" height="40" rx="8" style="fill:rgba(136,135,128,0.08);stroke:var(--border2);stroke-width:0.5"/>
+        <text x="197" y="172" text-anchor="middle" class="node-text" font-size="11">Empty title → no project</text>
+        <line x1="80" y1="150" x2="80" y2="355" fill="none" stroke="#6a6864" stroke-width="0.8" stroke-dasharray="4 4"/>
+        <text x="70" y="280" class="arr-label" fill="#6a6864" text-anchor="end">Discarded</text>
+      </svg>
+    </div>
+  </section>
+
+  <section id="state-task">
+    <div class="section-header">
+      <h2>State Chart — Task & Subtask States</h2>
+      <span class="badge badge-amber">Tasks</span>
+    </div>
+    <div class="diagram-wrap">
+      <svg class="dsvg" width="100%" viewBox="0 0 680 440" role="img">
+        <title>Task and Subtask State Machine</title>
+        <defs>
+          <marker id="arr7" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#6a6864" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <circle cx="50" cy="50" r="8" class="start-circle"/>
+        <line x1="58" y1="50" x2="100" y2="50" class="arr" marker-end="url(#arr7)"/>
+
+        <rect x="102" y="32" width="140" height="40" rx="8" class="state-neutral"/>
+        <text x="172" y="50" text-anchor="middle" class="node-text" font-weight="600">PENDING</text>
+        <text x="172" y="63" text-anchor="middle" class="node-sub">Not yet started</text>
+
+        <line x1="242" y1="50" x2="310" y2="50" class="arr" marker-end="url(#arr7)"/>
+        <text x="276" y="44" text-anchor="middle" class="arr-label" fill="#85b7eb">User ticks</text>
+
+        <rect x="312" y="32" width="140" height="40" rx="8" class="state-end"/>
+        <text x="382" y="50" text-anchor="middle" class="node-text" font-weight="600" fill="#5dcaa5">COMPLETED</text>
+        <text x="382" y="63" text-anchor="middle" class="node-sub">Grey + strikethrough</text>
+
+        <line x1="382" y1="72" x2="382" y2="110" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="382" y1="110" x2="172" y2="110" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="172" y1="110" x2="172" y2="72" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr7)"/>
+        <text x="277" y="104" text-anchor="middle" class="arr-label" fill="#85b7eb">Untick → reverts</text>
+
+        <!-- EDITING inline -->
+        <line x1="172" y1="72" x2="172" y2="160" class="arr" marker-end="url(#arr7)"/>
+        <text x="184" y="120" class="arr-label" fill="#85b7eb">Double-click</text>
+        <rect x="102" y="162" width="140" height="40" rx="8" class="state-active"/>
+        <text x="172" y="180" text-anchor="middle" class="node-text" font-weight="600" fill="#a99ef5">EDITING_NAME</text>
+        <text x="172" y="195" text-anchor="middle" class="node-sub">Inline text input active</text>
+        <line x1="172" y1="202" x2="172" y2="240" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="172" y1="240" x2="100" y2="240" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr7)"/>
+        <text x="120" y="234" text-anchor="middle" class="arr-label" fill="#5dcaa5">Enter / blur saves</text>
+        <line x1="100" y1="240" x2="100" y2="50" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr7)"/>
+
+        <!-- EXPANDED (dropdown) -->
+        <line x1="242" y1="180" x2="312" y2="180" class="arr" marker-end="url(#arr7)"/>
+        <text x="277" y="174" text-anchor="middle" class="arr-label" fill="#85b7eb">Single-click</text>
+        <rect x="312" y="162" width="160" height="40" rx="8" class="state-active"/>
+        <text x="392" y="180" text-anchor="middle" class="node-text" font-weight="600" fill="#a99ef5">EXPANDED</text>
+        <text x="392" y="195" text-anchor="middle" class="node-sub">Subtask list visible</text>
+
+        <line x1="392" y1="202" x2="392" y2="260" class="arr" marker-end="url(#arr7)"/>
+        <text x="404" y="236" class="arr-label" fill="#85b7eb">Click again</text>
+        <rect x="312" y="262" width="160" height="40" rx="8" class="state-neutral"/>
+        <text x="392" y="280" text-anchor="middle" class="node-text" font-weight="600">COLLAPSED</text>
+        <text x="392" y="295" text-anchor="middle" class="node-sub">Subtasks hidden</text>
+        <line x1="312" y1="282" x2="242" y2="282" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="242" y1="282" x2="242" y2="50" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr7)"/>
+
+        <!-- SUBTASK EDITING DUE DATE -->
+        <line x1="392" y1="302" x2="392" y2="350" class="arr" marker-end="url(#arr7)"/>
+        <text x="404" y="330" class="arr-label" fill="#85b7eb">Edit subtask in edit mode</text>
+        <rect x="312" y="352" width="160" height="50" rx="8" class="state-active"/>
+        <text x="392" y="372" text-anchor="middle" class="node-text" font-weight="600" fill="#a99ef5">SUBTASK_EDIT_MODE</text>
+        <text x="392" y="387" text-anchor="middle" class="node-sub">Est. time, due date/time editable</text>
+        <line x1="312" y1="377" x2="260" y2="377" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="260" y1="377" x2="260" y2="282" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr7)"/>
+        <text x="255" y="330" text-anchor="end" class="arr-label" fill="#5dcaa5">Done / confirm</text>
+
+        <!-- Note on auto-tick -->
+        <rect x="540" y="32" width="130" height="55" rx="8" style="fill:rgba(29,158,117,0.08);stroke:rgba(29,158,117,0.3);stroke-width:0.8"/>
+        <text x="605" y="52" text-anchor="middle" class="node-text" fill="#5dcaa5" font-size="11">Auto-complete:</text>
+        <text x="605" y="66" text-anchor="middle" class="node-sub">All subtasks done →</text>
+        <text x="605" y="79" text-anchor="middle" class="node-sub">task auto-ticks</text>
+      </svg>
+    </div>
+  </section>
+
+  <section id="state-session">
+    <div class="section-header">
+      <h2>State Chart — Session States</h2>
+      <span class="badge badge-blue">Session</span>
+    </div>
+    <div class="diagram-wrap">
+      <svg class="dsvg" width="100%" viewBox="0 0 680 300" role="img">
+        <title>Session State Machine</title>
+        <defs>
+          <marker id="arr8" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#6a6864" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <circle cx="40" cy="90" r="8" class="start-circle"/>
+        <line x1="48" y1="90" x2="90" y2="90" class="arr" marker-end="url(#arr8)"/>
+
+        <rect x="92" y="72" width="140" height="40" rx="8" class="state-active"/>
+        <text x="162" y="90" text-anchor="middle" class="node-text" font-weight="600" fill="#a99ef5">ACTIVE_SESSION</text>
+        <text x="162" y="103" text-anchor="middle" class="node-sub">Cookie valid, user working</text>
+
+        <line x1="232" y1="90" x2="310" y2="90" class="arr" marker-end="url(#arr8)"/>
+        <text x="271" y="84" text-anchor="middle" class="arr-label" fill="#fac775">Inactivity 30 min</text>
+
+        <rect x="312" y="72" width="140" height="40" rx="8" class="state-warn"/>
+        <text x="382" y="90" text-anchor="middle" class="node-text" fill="#fac775" font-weight="600">TIMED_OUT</text>
+        <text x="382" y="103" text-anchor="middle" class="node-sub">Cookie invalidated</text>
+
+        <line x1="452" y1="90" x2="530" y2="90" class="arr" marker-end="url(#arr8)"/>
+        <text x="491" y="84" text-anchor="middle" class="arr-label" fill="#85b7eb">Re-login</text>
+
+        <rect x="532" y="72" width="130" height="40" rx="8" class="state-end"/>
+        <text x="597" y="90" text-anchor="middle" class="node-text" fill="#5dcaa5" font-weight="600">RE-AUTHENTICATED</text>
+        <text x="597" y="103" text-anchor="middle" class="node-sub">New cookie issued</text>
+        <line x1="597" y1="112" x2="597" y2="220" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="597" y1="220" x2="162" y2="220" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="162" y1="220" x2="162" y2="112" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr8)"/>
+
+        <!-- Logout path -->
+        <line x1="162" y1="112" x2="162" y2="170" class="arr" marker-end="url(#arr8)"/>
+        <text x="174" y="147" class="arr-label" fill="#f09595">Logout click</text>
+        <rect x="92" y="172" width="140" height="40" rx="8" class="state-error"/>
+        <text x="162" y="192" text-anchor="middle" class="node-text" fill="#f09595" font-weight="600">LOGGED_OUT</text>
+        <text x="162" y="205" text-anchor="middle" class="node-sub">Cookie immediately cleared</text>
+
+        <line x1="232" y1="192" x2="382" y2="192" fill="none" stroke="#6a6864" stroke-width="1.2"/>
+        <line x1="382" y1="192" x2="382" y2="112" fill="none" stroke="#6a6864" stroke-width="1.2" marker-end="url(#arr8)"/>
+        <text x="306" y="186" text-anchor="middle" class="arr-label" fill="#85b7eb">→ Login page</text>
+
+        <rect x="10" y="240" width="640" height="46" rx="6" style="fill:rgba(55,138,221,0.08);stroke:rgba(55,138,221,0.2);stroke-width:0.8"/>
+        <text x="330" y="258" text-anchor="middle" class="node-text" fill="#85b7eb" font-size="11">Future: Settings — Timeout options: 5 min / 15 min / 30 min (default) / 1 hr / 3 hr / 1 day / 5 days / Never</text>
+        <text x="330" y="273" text-anchor="middle" class="node-sub">"Never" = cookie persists until explicit logout only</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ EXP FORMULA -->
+  <section id="exp-formula">
+    <div class="section-header">
+      <h2>EXP Formula Reference</h2>
+      <span class="badge badge-coral">Gamification</span>
+    </div>
+    <p style="color:var(--text2);margin-bottom:16px;">EXP required to level up from level L is: <strong style="color:var(--amber2)">E(L) = 100 × H(L)</strong>, where H(L) is the hours required per reward at level L.</p>
+    <table class="exp-table">
+      <thead>
+        <tr><th>Level Range</th><th>Phase</th><th>H(L) — hrs/reward</th><th>E(L) — EXP to next level</th><th>Duration rationale</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1 – 7</td><td class="phase">Week 1</td><td>1 hr</td><td>100 EXP</td><td>7 rewards × 1 hr/reward = Week 1</td></tr>
+        <tr><td>8 – 14</td><td class="phase">Week 2</td><td>2 hrs</td><td>200 EXP</td><td>7 rewards × 2 hr/reward = Week 2</td></tr>
+        <tr><td>15 – 21</td><td class="phase">Week 3</td><td>3 hrs</td><td>300 EXP</td><td>7 rewards × 3 hr/reward = Week 3</td></tr>
+        <tr><td>22 – 28</td><td class="phase">Week 4</td><td>4 hrs</td><td>400 EXP</td><td>7 rewards × 4 hr/reward = Week 4</td></tr>
+        <tr><td>29 – 756</td><td class="phase">Years 1–2</td><td>400 + (400/728)(L − 28) hrs</td><td>Scales 400→800 EXP</td><td>2 years at 7 rewards/week: 4 hr → 8 hr</td></tr>
+        <tr><td>757 – 1848</td><td class="phase">Years 3–5</td><td>800 + (800/1092)(L − 756) hrs</td><td>Scales 800→1600 EXP</td><td>3 years at 7 rewards/week: 8 hr → 16 hr</td></tr>
+        <tr><td>1849+</td><td class="phase">Endgame</td><td>1600 hrs (cap)</td><td>160,000 EXP</td><td>Cap achieved at level 1849; scales infinitely</td></tr>
+      </tbody>
+    </table>
+    <div class="note note-decision" style="margin-top:16px;">EXP is only awarded when ALL tasks in a project are complete. Partial completion awards nothing. EXP earned from a deleted project is retained by the user.</div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════ FUTURE NOTES -->
+  <section id="future-notes">
+    <div class="section-header">
+      <h2>Planned Update Notes</h2>
+      <span class="badge badge-blue">Roadmap</span>
+    </div>
+    <div style="display:grid;gap:10px;">
+      <div class="note note-future">Task insertion order: Default is top (position #1). A future Settings toggle will allow choosing top vs. bottom insertion for new tasks and subtasks.</div>
+      <div class="note note-future">Listing style (number / bullet / dash): Currently one control drives both Tasks and Subtasks. The data model stores style separately. A future update will expose separate controls per level.</div>
+      <div class="note note-future">Session timeout: Default is 30 minutes. A future Settings panel will expose options: 5 min, 15 min, 30 min, 1 hr, 3 hr, 1 day, 5 days, Never. "Never" = persist cookie until explicit logout.</div>
+      <div class="note note-future">User Settings (future patch): View and modify name and age. View email address. Option to change app layout. Session timeout configuration. Active sessions list.</div>
+      <div class="note note-future">Subtask listing style independence: Once the Settings panel is introduced, Task listing style and Subtask listing style will be configurable separately. Schema already supports this (stored independently).</div>
+      <div class="note note-future">Google Calendar two-way sync: Currently the app pushes due dates to Google Calendar and respects time edits/deletions from Google (Google = source of truth for time). Full bidirectional conflict resolution UI is a future milestone.</div>
+      <div class="note note-future">Timezone override: Timezone is auto-detected on signup. A future Settings option will allow the user to override their stored timezone.</div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+function switchTab(btn, panelId) {
+  const section = btn.closest('section');
+  section.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  section.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+}
+
+// Nav active state on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('nav a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`nav a[href="#${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { threshold: 0.2 });
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
